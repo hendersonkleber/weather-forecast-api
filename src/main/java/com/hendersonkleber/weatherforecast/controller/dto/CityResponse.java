@@ -1,4 +1,4 @@
-package com.hendersonkleber.weatherforecast.dto;
+package com.hendersonkleber.weatherforecast.controller.dto;
 
 import com.hendersonkleber.weatherforecast.entity.City;
 

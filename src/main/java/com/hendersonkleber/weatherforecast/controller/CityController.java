@@ -1,6 +1,6 @@
 package com.hendersonkleber.weatherforecast.controller;
 
-import com.hendersonkleber.weatherforecast.dto.CityResponse;
+import com.hendersonkleber.weatherforecast.controller.dto.CityResponse;
 import com.hendersonkleber.weatherforecast.service.CityService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
