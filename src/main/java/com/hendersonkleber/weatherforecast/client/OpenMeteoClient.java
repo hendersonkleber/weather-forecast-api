@@ -10,10 +10,10 @@ import com.hendersonkleber.weatherforecast.client.dto.OpenMeteoWeatherForecastRe
 
 @FeignClient(
         name = "OpenMeteoClient",
-        url = "https://api.open-meteo.com/v1"
+        url = "https://api.open-meteo.com"
 )
 public interface OpenMeteoClient {
-    @GetMapping(path = "/forecast")
+    @GetMapping(path = "/v1/forecast")
     OpenMeteoWeatherForecastResponse getWeatherForecast(
             @RequestParam(name = "latitude") BigDecimal latitude,
             @RequestParam(name = "longitude") BigDecimal longitude,
