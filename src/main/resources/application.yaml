@@ -17,13 +17,14 @@ spring:
     hibernate:
       ddl-auto: validate
 
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-        loggerLevel: full
-      OpenMeteoClient:
-        connectTimeout: 10000
-        readTimeout: 20000
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+            loggerLevel: basic
+          OpenMeteoClient:
+            connectTimeout: 10000
+            readTimeout: 20000
