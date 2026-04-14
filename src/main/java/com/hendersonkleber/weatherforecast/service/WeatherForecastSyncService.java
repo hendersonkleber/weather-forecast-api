@@ -5,8 +5,13 @@ import com.hendersonkleber.weatherforecast.client.dto.Daily;
 import com.hendersonkleber.weatherforecast.client.dto.Hourly;
 import com.hendersonkleber.weatherforecast.client.dto.OpenMeteoWeatherForecastResponse;
 import com.hendersonkleber.weatherforecast.entity.*;
+import com.hendersonkleber.weatherforecast.exception.ExternalApiException;
 import com.hendersonkleber.weatherforecast.repository.WeatherForecastDayRepository;
 import com.hendersonkleber.weatherforecast.repository.WeatherForecastHourRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +40,10 @@ public class WeatherForecastSyncService {
         this.hourRepository = hourRepository;
     }
 
-    @Transactional
+    @Retry(name = "weatherForecastSyncRetry")
+    @CircuitBreaker(name = "weatherForecastSyncCircuitBreaker", fallbackMethod = "fallback")
+    @RateLimiter(name = "weatherForecastSyncRateLimiter")
+    @Bulkhead(name = "weatherForecastSyncBulkhead")
     public void sync(List<City> cities) {
         List<BigDecimal> latitudes = cities.stream().map(City::getLatitude).toList();
         List<BigDecimal> longitudes = cities.stream().map(City::getLongitude).toList();
@@ -50,6 +57,21 @@ public class WeatherForecastSyncService {
                 7
         );
 
+        if (response.isEmpty()) {
+            this.log.info("No weather forecast found");
+            return;
+        }
+
+        this.persist(cities, response);
+    }
+
+    public void fallback(List<City> cities, Throwable ex) {
+        this.log.error("Open Meteo Forecast API Error", ex);
+        throw new ExternalApiException("Open Meteo API", "Forecast API unavailable", ex);
+    }
+
+    @Transactional
+    private void persist(List<City> cities, List<OpenMeteoWeatherForecastResponse> response) {
         // lista das cidades ids
         List<Long> cityIds = cities.stream().map(City::getId).toList();
 

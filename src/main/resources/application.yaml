@@ -31,7 +31,38 @@ spring:
           default:
             connectTimeout: 3000
             readTimeout: 5000
-            loggerLevel: basic
+            loggerLevel: BASIC
           OpenMeteoClient:
             connectTimeout: 10000
             readTimeout: 20000
+            loggerLevel: BASIC
+
+resilience4j:
+  retry:
+    instances:
+      weatherForecastSyncRetry:
+        max-attempts: 3
+        wait-duration: 2s
+
+  circuitbreaker:
+    instances:
+      weatherForecastSyncCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+
+  ratelimiter:
+    instances:
+      weatherForecastSyncRateLimiter:
+        limit-for-period: 5
+        limit-refresh-period: 1s
+
+  bulkhead:
+    instances:
+      weatherForecastSyncBulkhead:
+        max-concurrent-calls: 5
+
+logging:
+  level:
+    com.hendersonkleber.weatherforecast.OpenMeteoClient: DEBUG
+    com.hendersonkleber.weatherforecast: DEBUG

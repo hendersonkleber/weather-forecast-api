@@ -16,7 +16,7 @@ import java.util.List;
 public class WeatherForecastSyncScheduler {
     private final Logger log = LoggerFactory.getLogger(WeatherForecastSyncScheduler.class);
 
-    private final static int BATCH_SIZE = 100;
+    private final static int BATCH_SIZE = 50;
 
     private final CityRepository cityRepository;
     private final WeatherForecastSyncService syncService;
@@ -38,7 +38,12 @@ public class WeatherForecastSyncScheduler {
 
             if (page.hasContent()) {
                 this.log.info("Processing batch {}/{} with {} cities", page.getNumber() + 1, page.getTotalPages(), page.getTotalElements());
-                this.syncService.sync(page.getContent());
+
+                try {
+                    this.syncService.sync(page.getContent());
+                } catch (Exception e) {
+                    this.log.error("Failed to sync batch {}", page.getNumber(), e);
+                }
             }
 
             pageable = pageable.next();

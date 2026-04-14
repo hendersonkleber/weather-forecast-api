@@ -1,5 +1,6 @@
 package com.hendersonkleber.weatherforecast.client;
 
+import com.hendersonkleber.weatherforecast.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,7 +12,8 @@ import com.hendersonkleber.weatherforecast.client.dto.OpenMeteoWeatherForecastRe
 
 @FeignClient(
         name = "OpenMeteoClient",
-        url = "https://api.open-meteo.com"
+        url = "https://api.open-meteo.com",
+        configuration = FeignConfig.class
 )
 public interface OpenMeteoClient {
     @GetMapping(path = "/v1/forecast")
