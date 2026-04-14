@@ -5,9 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 public interface WeatherForecastDayRepository extends JpaRepository<WeatherForecastDay, Long> {
-    @Query("SELECT w FROM WeatherForecastDay w WHERE w.city.id = :cityId AND w.date = :date")
-    Optional<WeatherForecastDay> findByCityAndDate(Long cityId, LocalDate date);
+    @Query("SELECT w FROM WeatherForecastDay w WHERE w.city.id IN :cityIds AND w.date IN :dates")
+    List<WeatherForecastDay> findByCityIdAndDate(List<Long> cityIds, List<LocalDate> dates);
 }
