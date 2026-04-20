@@ -2,8 +2,11 @@ package com.hendersonkleber.weatherforecast.entity;
 
 import com.hendersonkleber.weatherforecast.util.TextUtil;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "city")
@@ -12,6 +15,21 @@ public class City {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "last_sync_at")
+    private LocalDateTime lastSyncAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority")
+    private CityPriority priority;
 
     @Column(name = "name", length = 120, nullable = false)
     private String name;
@@ -34,9 +52,14 @@ public class City {
     public City() {
     }
 
-    public City(String name, BigDecimal latitude, BigDecimal longitude, String state, String country) {
+    public City(LocalDateTime createdAt, Long id, LocalDateTime updatedAt, LocalDateTime lastSyncAt, CityPriority priority, String name, String nameNormalized, BigDecimal latitude, BigDecimal longitude, String state, String country) {
+        this.createdAt = createdAt;
+        this.id = id;
+        this.updatedAt = updatedAt;
+        this.lastSyncAt = lastSyncAt;
+        this.priority = priority;
         this.name = name;
-        this.nameNormalized = TextUtil.normalize(name);
+        this.nameNormalized = nameNormalized;
         this.latitude = latitude;
         this.longitude = longitude;
         this.state = state;
@@ -49,6 +72,38 @@ public class City {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getLastSyncAt() {
+        return lastSyncAt;
+    }
+
+    public void setLastSyncAt(LocalDateTime lastSyncAt) {
+        this.lastSyncAt = lastSyncAt;
+    }
+
+    public CityPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(CityPriority priority) {
+        this.priority = priority;
     }
 
     public String getName() {

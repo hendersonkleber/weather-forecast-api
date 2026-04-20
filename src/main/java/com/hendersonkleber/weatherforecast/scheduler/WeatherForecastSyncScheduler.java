@@ -1,6 +1,7 @@
 package com.hendersonkleber.weatherforecast.scheduler;
 
 import com.hendersonkleber.weatherforecast.entity.City;
+import com.hendersonkleber.weatherforecast.entity.CityPriority;
 import com.hendersonkleber.weatherforecast.repository.CityRepository;
 import com.hendersonkleber.weatherforecast.service.WeatherForecastSyncService;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -30,24 +32,17 @@ public class WeatherForecastSyncScheduler {
     public void run() {
         this.log.info("Starting weather forecast sync scheduler");
 
-        PageRequest pageable = PageRequest.of(0, BATCH_SIZE);
-        Page<City> page;
+        var content = this.cityRepository.findByPriority(List.of(CityPriority.HIGH), LocalDateTime.now());
 
-        do {
-            page = cityRepository.findAll(pageable);
+       if (!content.isEmpty()) {
+            this.log.info("Processing {} cities", content.size());
 
-            if (page.hasContent()) {
-                this.log.info("Processing batch {}/{} with {} cities", page.getNumber() + 1, page.getTotalPages(), page.getTotalElements());
-
-                try {
-                    this.syncService.sync(page.getContent());
-                } catch (Exception e) {
-                    this.log.error("Failed to sync batch {}", page.getNumber(), e);
-                }
+            try {
+                this.syncService.sync(content);
+            }   catch (Exception e){
+                this.log.error("Failed to sync cities", e);
             }
-
-            pageable = pageable.next();
-        } while (page.hasNext());
+        }
 
         this.log.info("Finishing weather forecast sync scheduler");
     }
