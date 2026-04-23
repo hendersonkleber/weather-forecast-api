@@ -19,8 +19,6 @@ import java.util.List;
 public class WeatherForecastSyncScheduler {
     private final Logger log = LoggerFactory.getLogger(WeatherForecastSyncScheduler.class);
 
-    private final static int BATCH_SIZE = 50;
-
     private final CityRepository cityRepository;
     private final WeatherForecastSyncService syncService;
 
@@ -37,7 +35,6 @@ public class WeatherForecastSyncScheduler {
                 List.of(CityPriority.HIGH),
                 LocalDate.now().atStartOfDay()
         );
-
 
         if (!content.isEmpty()) {
             this.log.info("Processing {} cities", content.size());

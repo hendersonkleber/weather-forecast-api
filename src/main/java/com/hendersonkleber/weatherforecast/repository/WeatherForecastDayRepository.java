@@ -13,6 +13,9 @@ public interface WeatherForecastDayRepository extends JpaRepository<WeatherForec
     @Query("SELECT w FROM WeatherForecastDay w WHERE w.city.id IN :cityIds AND w.date IN :dates")
     List<WeatherForecastDay> findByCityIdAndDate(List<Long> cityIds, List<LocalDate> dates);
 
+    @Query("SELECT w FROM WeatherForecastDay w WHERE w.city.id = :cityId AND w.date > :startDate AND w.date < :endDate")
+    List<WeatherForecastDay> findByCityIdAndDates(Long cityId, LocalDate startDate, LocalDate endDate);
+
     @Query("""
                         SELECT
                             c.id AS id,
