@@ -27,11 +27,37 @@ public class WeatherForecastSyncService {
         this.weatherForecastPersistenceService = weatherForecastPersistenceService;
     }
 
+    /*@Retry(name = "weatherForecastSyncRetry")
+    @CircuitBreaker(name = "weatherForecastSyncCircuitBreaker", fallbackMethod = "fallback")
+    @RateLimiter(name = "weatherForecastSyncRateLimiter")
+    @Bulkhead(name = "weatherForecastSyncBulkhead")
+    public void syncCity(City city) {
+        List<String> latitudes = cities.stream().map(City::getLatitude).map(BigDecimal::toString).toList();
+        List<String> longitudes = cities.stream().map(City::getLongitude).map(BigDecimal::toString).toList();
+
+        List<OpenMeteoWeatherForecastResponse> response = this.openMeteoClient.getWeatherForecastForCities(
+                latitudes,
+                longitudes,
+                "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,relative_humidity_2m_min,relative_humidity_2m_max,precipitation_probability_max,precipitation_probability_min,wind_speed_10m_max,wind_direction_10m_dominant",
+                "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m",
+                "America/Sao_Paulo",
+                14,
+                7
+        );
+
+        if (response.isEmpty()) {
+            this.log.info("No weather forecast found");
+            return;
+        }
+
+        this.weatherForecastPersistenceService.persist(cities, response);
+    }*/
+
     @Retry(name = "weatherForecastSyncRetry")
     @CircuitBreaker(name = "weatherForecastSyncCircuitBreaker", fallbackMethod = "fallback")
     @RateLimiter(name = "weatherForecastSyncRateLimiter")
     @Bulkhead(name = "weatherForecastSyncBulkhead")
-    public void sync(List<City> cities) {
+    public void syncCities(List<City> cities) {
         List<String> latitudes = cities.stream().map(City::getLatitude).map(BigDecimal::toString).toList();
         List<String> longitudes = cities.stream().map(City::getLongitude).map(BigDecimal::toString).toList();
 

@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,14 +33,18 @@ public class WeatherForecastSyncScheduler {
     public void run() {
         this.log.info("Starting weather forecast sync scheduler");
 
-        var content = this.cityRepository.findByPriority(List.of(CityPriority.HIGH), LocalDateTime.now());
+        var content = this.cityRepository.getByPriorityAndLastSync(
+                List.of(CityPriority.HIGH),
+                LocalDate.now().atStartOfDay()
+        );
 
-       if (!content.isEmpty()) {
+
+        if (!content.isEmpty()) {
             this.log.info("Processing {} cities", content.size());
 
             try {
-                this.syncService.sync(content);
-            }   catch (Exception e){
+                this.syncService.syncCities(content);
+            } catch (Exception e) {
                 this.log.error("Failed to sync cities", e);
             }
         }
